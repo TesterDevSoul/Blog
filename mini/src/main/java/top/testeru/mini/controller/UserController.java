@@ -24,8 +24,8 @@ import java.util.List;
 // UserController与前端交互的类
 public class UserController {
     @Autowired
-    @Qualifier("beanName")
-    UserService userServiceImpl;
+    @Qualifier("userService1Impl")
+    UserService userService;
 
 //---------------------  @RequestMapping  ---------------------
     //声明请求方式及路径path
@@ -158,7 +158,7 @@ public class UserController {
         //List<UserDTO> userList = new ArrayList<>();
         //userList.add(user);
         //System.out.println(userList);
-        userServiceImpl.add(user);
+        userService.add(user);
         return "ok";
     }
 
