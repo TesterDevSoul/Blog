@@ -1,11 +1,14 @@
 package top.testeru.mini.controller;
 
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import top.testeru.mini.dto.UserDTO;
+import top.testeru.mini.exception.UserNotFoundException;
 import top.testeru.mini.service.UserService;
+import top.testeru.mini.util.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,10 +25,27 @@ import java.util.List;
 // @RestController告诉类与前端页面进行交互
 @RestController
 // UserController与前端交互的类
+@Api("用户请求")
 public class UserController {
+    /**
+     *   直接注入会标黄
+     *   @Autowired
+     *   @Qualifier("userService1Impl")
+     *   //UserService userService;
+     */
+    private UserService userService;
+
+    /**
+     * @Autowired
+     *     public UserController(@Qualifier("userService1Impl") UserService userService) {
+     *         this.userService = userService;
+     *     }
+     *
+     */
     @Autowired
-    @Qualifier("userService1Impl")
-    UserService userService;
+    public void setUserService(@Qualifier("userService1Impl") UserService userService) {
+        this.userService = userService;
+    }
 
 //---------------------  @RequestMapping  ---------------------
     //声明请求方式及路径path
@@ -93,8 +113,9 @@ public class UserController {
         UserDTO user3 = userList
                         .stream()
                         .filter(user -> userName.equals(user.getName()))
-                        .toList()
-                        .get(0);
+                        .findFirst().get();
+                        //.toList()
+                        //.get(0);
         return user3;
     }
     @GetMapping(path = "/user11/{name}", value = "/user11/{name}",
@@ -104,8 +125,9 @@ public class UserController {
         UserDTO user3 = userList
                 .stream()
                 .filter(user -> name.equals(user.getName()))
-                .toList()
-                .get(0);
+                .findFirst().get();
+                //.toList()
+                //.get(0);
         return user3;
     }
     @GetMapping(path = "/user12")
@@ -114,8 +136,9 @@ public class UserController {
         UserDTO  user3 = userList
                         .stream()
                         .filter(user -> uname.equals(user.getName()))
-                        .toList()
-                        .get(0);
+                    .findFirst().get();
+                        //.toList()
+                        //.get(0);
         return user3;
     }
 
@@ -125,8 +148,9 @@ public class UserController {
         UserDTO user3 = userList
                 .stream()
                 .filter(user -> name.equals(user.getName()))
-                .toList()
-                .get(0);
+                .findFirst().get();
+                //.toList()
+                //.get(0);
         return user3;
     }
 
@@ -162,4 +186,51 @@ public class UserController {
         return "ok";
     }
 
+    //统一code码返回值
+    @PostMapping("/add1")
+    public R add1(@RequestBody UserDTO  user) {
+        userService.add(user);
+        return R.ok();
+    }
+    @ApiOperation(value = "根据姓名获取用户", notes = "返回一个统一实体类", response = UserDTO.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 400110, message = "异常姓名"),
+            @ApiResponse(code = 404120, message = "用户查看不到")})
+    @GetMapping(path = "/user66")
+    public R get66(@ApiParam(value = "用户姓名", required = true, example = "张三")
+                       @RequestParam("name") String uname){
+        List<UserDTO> userList = getUsers();
+        UserDTO  user3 = userList
+                .stream()
+                .filter(user -> uname.equals(user.getName()))
+                .findFirst().get();
+                //.toList()
+                //.get(0);
+        return R.ok().data(user3);
+    }
+    @GetMapping(path = "/usererror")
+    public R usererror(@RequestParam("name") String uname){
+        UserDTO user1 = null;
+        if (user1 == null) {
+            throw new UserNotFoundException(uname);
+        }
+        //user1.setName("张三");
+        //user1.setAge(18);
+        return R.ok().data(user1);
+    }
+    @GetMapping(path = "/usersall")
+    public R usersall(){
+        List<UserDTO> userList = new ArrayList<>();
+        UserDTO user1 = new UserDTO();
+        user1.setName("张三");
+        user1.setAge(18);
+        userList.add(user1);
+        UserDTO user2 = new UserDTO();
+        user2.setName("莉丝");
+        user2.setAge(20);
+        userList.add(user2);
+        System.out.println(userList);
+        //int a = 10 /0;
+        return R.ok().data(userList);
+    }
 }

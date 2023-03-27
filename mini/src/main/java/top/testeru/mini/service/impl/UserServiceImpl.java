@@ -1,5 +1,6 @@
 package top.testeru.mini.service.impl;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import top.testeru.mini.dto.UserDTO;
 import top.testeru.mini.service.UserService;
@@ -15,6 +16,7 @@ import java.util.List;
  * @createTime 2023年03月23日 19:39:32
  */
 @Service
+@Primary
 public class UserServiceImpl implements UserService {
     List<UserDTO> userDTOList = new ArrayList<>();
     @Override
